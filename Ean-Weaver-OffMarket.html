@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platinum Reserve | Off-Market Properties</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 42px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+
+        .header .subtitle {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .header .client-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 20px;
+        }
+
+        /* Properties Container */
+        .properties {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 20px 80px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        /* Property Card */
+        .property-card {
+            width: 520px;
+            background-color: #000000;
+        }
+
+        .property-card .image-container {
+            width: 100%;
+            height: 320px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .property-card .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .property-card:hover .image-container img {
+            transform: scale(1.03);
+        }
+
+        .property-card .details {
+            padding: 24px 0;
+        }
+
+        .property-card .property-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 26px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+
+        .property-card .property-address {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 6px;
+        }
+
+        .property-card .property-specs {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 6px;
+        }
+
+        .property-card .property-price {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            font-style: italic;
+            color: #ffffff;
+            margin-top: 4px;
+        }
+
+        .property-card .btn-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .save-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border: 1px solid #ffffff;
+            background-color: transparent;
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .save-btn .icon {
+            font-size: 16px;
+            line-height: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .save-btn:hover {
+            border-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .save-btn.saved {
+            border-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        .save-btn.saved .icon {
+            transform: scale(1.1);
+        }
+
+        .save-btn.saved:hover {
+            background-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .property-card .plans-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            background-color: transparent;
+            color: rgba(255, 255, 255, 0.8);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .property-card .plans-btn:hover {
+            background-color: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer p {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+        }
+
+        /* Map */
+        .map-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+        }
+
+        .map-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 26px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #map {
+            width: 100%;
+            height: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .map-popup {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #000;
+        }
+
+        .map-popup strong {
+            font-size: 14px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 28px;
+                letter-spacing: 4px;
+            }
+
+            .properties {
+                padding: 30px 16px 60px;
+                gap: 30px;
+            }
+
+            .property-card {
+                width: 100%;
+            }
+
+            .property-card .image-container {
+                height: 240px;
+            }
+
+            .property-card .property-title {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Platinum Reserve</h1>
+        <div class="subtitle">Exclusive Off-Market Properties</div>
+        <div class="client-name">Prepared for Ean Weaver</div>
+    </div>
+
+    <div class="properties">
+
+        <!-- 610 Westboro Dr -->
+        <div class="property-card">
+            <div class="image-container">
+                <img src="https://static.wixstatic.com/media/ba6d68_4c1f17a079bd481ba2b061a9bd140dd5~mv2.jpg/v1/fill/w_569,h_347,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/unnamed%20(12).jpg" alt="610 Westboro Dr">
+            </div>
+            <div class="details">
+                <h2 class="property-title">610 Westboro Dr</h2>
+                <p class="property-address">610 Westboro Dr., Nashville, TN 37209</p>
+                <p class="property-specs">4 BD | 4.5 BA | 3,500+ SF | .31 AC</p>
+                <p class="property-price">$1.375M &ndash; June 2026</p>
+                <div class="btn-row">
+                    <button class="save-btn" onclick="toggleSave(this, '610 Westboro Dr')">
+                        Save for Later
+                    </button>
+                    <a href="BUILDING_PLANS_610_Westboro_Dr.pdf" target="_blank" class="plans-btn">Building Plans</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2833 Sugar Tree Rd -->
+        <div class="property-card">
+            <div class="image-container">
+                <img src="2833_Sugar_Tree_Rd.jpg" alt="2833 Sugar Tree Rd">
+            </div>
+            <div class="details">
+                <h2 class="property-title">2833 Sugar Tree Rd</h2>
+                <p class="property-address">2833 Sugar Tree Rd, Nashville, TN 37215</p>
+                <p class="property-specs">3 BD | 5 BA | 2,921 SF | .45 AC | Pool</p>
+                <p class="property-price">$1.975M &ndash; Coming Soon</p>
+                <p style="font-family:'Montserrat',sans-serif;font-size:12px;font-weight:300;font-style:italic;color:rgba(255,255,255,0.55);margin-top:8px;">Note: I think they are priced a little too high on this one.</p>
+                <div class="btn-row">
+                    <button class="save-btn" onclick="toggleSave(this, '2833 Sugar Tree Rd')">
+                        Save for Later
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1413 Clifton Ln -->
+        <div class="property-card">
+            <div class="image-container">
+                <img src="1413_Clifton_Ln.jpg" alt="1413 Clifton Ln" style="object-fit: cover; object-position: center 20%;">
+            </div>
+            <div class="details">
+                <h2 class="property-title">1413 Clifton Ln</h2>
+                <p class="property-address">1413 Clifton Ln, Nashville, TN 37212</p>
+                <p class="property-specs">4 BD | 4 BA | 3,050 SF | 2 Car Garage</p>
+                <p class="property-price">$1.5M&ndash;$1.75M &ndash; May 2026</p>
+                <div class="btn-row">
+                    <button class="save-btn" onclick="toggleSave(this, '1413 Clifton Ln')">
+                        Save for Later
+                    </button>
+                    <a href="BUILDING_PLANS_1413_Clifton_Ln.pdf" target="_blank" class="plans-btn">Building Plans</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1006A Southside Ave -->
+        <div class="property-card">
+            <div class="image-container">
+                <img src="1006_Southside_Ave.jpg" alt="1006A Southside Ave" style="object-fit: cover; object-position: center 15%;">
+            </div>
+            <div class="details">
+                <h2 class="property-title">1006A Southside Ave</h2>
+                <p class="property-address">1006A Southside Ave, Nashville, TN 37203</p>
+                <p class="property-specs">4 BD | 3.2 BA | 3,648 SF | 2 Car Garage</p>
+                <p class="property-price">$1.7M &ndash; Summer 2026</p>
+                <div class="btn-row">
+                    <button class="save-btn" onclick="toggleSave(this, '1006A Southside Ave')">
+                        Save for Later
+                    </button>
+                    <a href="BUILDING_PLANS_1006_Southside_Ave.pdf" target="_blank" class="plans-btn">Building Plans</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1006B Southside Ave -->
+        <div class="property-card">
+            <div class="image-container">
+                <img src="1006_Southside_Ave.jpg" alt="1006B Southside Ave" style="object-fit: cover; object-position: center 15%;">
+            </div>
+            <div class="details">
+                <h2 class="property-title">1006B Southside Ave</h2>
+                <p class="property-address">1006B Southside Ave, Nashville, TN 37203</p>
+                <p class="property-specs">4 BD | 3.2 BA | 3,648 SF | 2 Car Garage</p>
+                <p class="property-price">$1.7M &ndash; Summer 2026</p>
+                <div class="btn-row">
+                    <button class="save-btn" onclick="toggleSave(this, '1006B Southside Ave')">
+                        Save for Later
+                    </button>
+                    <a href="BUILDING_PLANS_1006_Southside_Ave.pdf" target="_blank" class="plans-btn">Building Plans</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Map Section -->
+    <div class="map-section">
+        <h2 class="map-title">Property Locations</h2>
+        <div id="map"></div>
+    </div>
+
+    <div class="footer">
+        <p>Stonehouse Realty Co. &bull; Confidential &bull; Not for Public Distribution</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+    <script>
+        // Initialize Map
+        var map = L.map('map', {
+            scrollWheelZoom: false
+        }).setView([36.1300, -86.8500], 13);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '',
+            maxZoom: 19
+        }).addTo(map);
+
+        var properties = [
+            {
+                lat: 36.1268, lng: -86.8456,
+                title: '610 Westboro Dr',
+                details: '4 BD | 4.5 BA | $1.375M'
+            },
+            {
+                lat: 36.1095, lng: -86.8190,
+                title: '2833 Sugar Tree Rd',
+                details: '3 BD | 5 BA | $1.975M | Pool'
+            },
+            {
+                lat: 36.1138, lng: -86.7963,
+                title: '1413 Clifton Ln',
+                details: '4 BD | 4 BA | $1.5M–$1.75M'
+            },
+            {
+                lat: 36.1456, lng: -86.7835,
+                title: '1006A Southside Ave',
+                details: '4 BD | 3.2 BA | 3,648 SF'
+            },
+            {
+                lat: 36.1454, lng: -86.7833,
+                title: '1006B Southside Ave',
+                details: '4 BD | 3.2 BA | 3,648 SF'
+            }
+        ];
+
+        var whiteIcon = L.divIcon({
+            className: 'custom-pin',
+            html: '<div style="width:14px;height:14px;background:#fff;border:2px solid #fff;border-radius:50%;box-shadow:0 0 8px rgba(255,255,255,0.5);"></div>',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7],
+            popupAnchor: [0, -10]
+        });
+
+        properties.forEach(function(p) {
+            L.marker([p.lat, p.lng], { icon: whiteIcon })
+                .addTo(map)
+                .bindPopup('<div class="map-popup"><strong>' + p.title + '</strong>' + p.details + '</div>');
+        });
+
+        // Fit map to show all pins
+        var group = L.featureGroup(properties.map(function(p) {
+            return L.marker([p.lat, p.lng]);
+        }));
+        map.fitBounds(group.getBounds().pad(0.15));
+
+        function toggleSave(btn, propertyName) {
+            btn.classList.toggle('saved');
+            const isSaved = btn.classList.contains('saved');
+
+            if (isSaved) {
+                btn.innerHTML = 'Saved';
+                sendNotification(propertyName);
+            } else {
+                btn.innerHTML = 'Save for Later';
+            }
+        }
+
+        function sendNotification(propertyName) {
+            const data = {
+                name: 'Ean Weaver',
+                property: propertyName,
+                message: 'Ean Weaver has saved ' + propertyName + '!',
+                _subject: 'Platinum Reserve: Ean Weaver saved ' + propertyName,
+                _captcha: 'false',
+                _template: 'table'
+            };
+
+            fetch('https://formsubmit.co/ajax/ryan@stonehouserealtyco.com', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => console.log('Notification sent'))
+            .catch(error => console.log('Notification error:', error));
+        }
+    </script>
+
+</body>
+</html>
